@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import numpy as np
 import sys
 
 
@@ -18,7 +17,7 @@ class Video:
         self.shingles = shingles
     def __eq__(self, v):
         if not isinstance(v, Video):
-            return false
+            return False
         
         return self.idx == v.idx
 
@@ -46,7 +45,7 @@ for line in sys.stdin:
     # Strip video id and shingles
     val = [int(v) for v in val[1:-1].split(', ')]
     
-    video = Video(val[1], set(val[2:]))
+    video = Video(val[0], set(val[1:]))
 
     if last_key is None:
         last_key = key

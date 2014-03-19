@@ -8,16 +8,11 @@ nBand = 16
 nBucket = 256
 maxShingle = 10000
 
-# def getHashFunc(nHashFunc):
-#     # randomly generate a group of (a, b) for linear hashing functions
-#     A = np.random.randint( 1, 10001, size = [nHashFunc, 1] )
-#     B = np.random.randint( 1, 10001, size = [nHashFunc, 1] )
-#     return (A, B)
 
 def getHashFunc(nHashFunc, nShingles):
     # randomly generate a group of (a, b) for linear hashing functions
-    A = np.random.randint( 1, 10001, size = [nHashFunc, 1] )
-    B = np.random.randint( 1, 10001, size = [nHashFunc, 1] )
+    A = np.random.randint( 1, maxShingle+1, size = [nHashFunc, 1] )
+    B = np.random.randint( 1, maxShingle+1, size = [nHashFunc, 1] )
     c = nShingles
     
     F = [];
@@ -44,23 +39,6 @@ def printKVPair(video_id, shingles, hashTable):
     
     return
 
-# def minHash(shingles):
-#     # Min Hash algorithm with jarccard distance
-#     
-#     [nDim, nData] = shingles.shape
-#     
-#     signature = np.ndarray(shape = (nHash, nData), dtype = int)
-#     signature.fill(2*nData) # Filled with dummy value
-# 
-#     # Generate hash functions (a*i+b uniformly at random)
-#     [A, B] = getHashFunc(nHash)
-#     
-#     for (a, b, s) in zip(A, B, signature):
-#         hashTerm = ( shingles * a + b ) % nData
-#         s = hashTerm.min(0)
-#     
-#     return signature
-
 def minHash(shingles):
     # Min Hash algorithm with jarccard distance
     
@@ -70,12 +48,12 @@ def minHash(shingles):
     signature.fill(2*nData) # Filled with dummy value
 
     # Generate hash functions (a*i+b uniformly at random)
-    hfs = getHashFunc(nHashFunc, nShingles)
+    hfs = getHashFunc(nHash, nShingles)
     
     # Step through each row and update signature matrix if shringles[r][c] = 1
     #TODO: Is it even a good idea?
     for i, row in enumerate(shingles):
-            hashValues = [hf(i) for hf in hfs]
+        hashValues = [hf(i) for hf in hfs]
         for j, element in enumerate(row):
             if element == 1:
                 # Update the minimum values for each hash function
@@ -87,7 +65,7 @@ def minHash(shingles):
 def lsh(signature):
     # Locality Sensitive Hashing on signature matrix. Note that only AND operation is considered here. OR operation is implicitly done in the pipeline of MapReduce.
     
-    [nDim, nData] = shingles.shape
+    [_, nData] = shingles.shape
     hashTable = np.ndarray(shape=(nBand, nData), dtype = int)
     hashTable.fill(0)
     
@@ -96,14 +74,15 @@ def lsh(signature):
     
     # Linear hash function (A*S+b uniformly at random)
     # TODO: Should we generate different hash functions for different bands
-    # Simple hack, we use homogenous coordinates here 
+    # Simple hack, we use homogeneous coordinates here 
+    nRow = nHash / nBand
     W = np.random.randint( 1, 10001, size = [nRow+1, 1] )
          
     # Calculate hash values. One band at a time.     
     for band, col in zip(bands, hashTable):
             # Homogeneous coordinates
             band_h = band.append(np.ones(shape=(1, nData)))
-            col = np.dot(W, band_h) % nBucket
+            col[:] = np.dot(W, band_h) % nBucket
                 
     return hashTable
 
@@ -123,9 +102,9 @@ def mapper(video_id, video_shingle):
 def convertToIndex(shingles):
     # Convert shingles into an index representation
 
-    idx = range(maxShingle)
+    idx = [0]*(maxShingle+1)
         
-    for shingle in shingles
+    for shingle in shingles:
         idx[shingle] = 1
         
     return idx
@@ -137,7 +116,11 @@ if __name__ == "__main__":
     video_id = []
     video_shingle = []
     
-    for line in sys.stdin:
+    #TODO: comment this out
+    f = open('../data/train.txt', 'r+') 
+    
+#    for line in sys.stdin:
+    for line in f:
         line = line.strip()
         vid = int(line[6:15])
         shingles = np.fromstring(line[16:], dtype = int, sep = " ")
