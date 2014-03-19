@@ -23,7 +23,7 @@ def getHashFunc(nHashFunc, nShingles):
             return val
         F.append(f)
         
-    return (A, B)
+    return F
 
 def printKVPair(video_id, shingles, hashTable):
     # Output all (key, value) pairs for one single band. 
