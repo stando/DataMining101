@@ -17,10 +17,10 @@ class Video:
         self.shingles = shingles
     def __eq__(self, v):
         if not isinstance(v, Video):
-            return False
-        
+            return False        
         return self.idx == v.idx
-
+    def __hash__(self):
+        return hash(self.idx)
 
 def jaccard_dist(video_a, video_b):
     return len(video_a.shingles.intersection(video_b.shingles)) / \
@@ -37,8 +37,11 @@ def print_duplicates(videos):
                 print "%d\t%d" % (min(unique[i].idx, unique[j].idx), \
                                   max(unique[i].idx, unique[j].idx))
 
-
+# TODO: comment this out
+# f = open('stdsort.txt', 'r+')
+# for line in f:
 for line in sys.stdin:
+
     line = line.strip()
     key, val = line.split("\t")
     
