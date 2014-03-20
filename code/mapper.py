@@ -3,10 +3,10 @@
 import numpy as np
 import sys
 
-nRow = 20
-nBand = 2
+nRow = 5
+nBand = 40
 nHash = nRow * nBand
-nBucket = 257
+nBucket = 10007
 maxShingle = 10000
 
 def makeHashFunc(a, b, c):
@@ -78,7 +78,7 @@ def lsh(signature):
     # Linear hash function (A*S+b uniformly at random)
     # TODO: Should we generate different hash functions for different bands
     # Simple hack, we use homogeneous coordinates here
-    W = np.random.randint(1, 1000, size=(nRow+1,))
+    W = np.random.randint(1, 1001, size=(nRow+1,))
          
     # Calculate hash values. One band at a time.     
     for band, col in zip(bands, hashTable):
@@ -118,10 +118,10 @@ if __name__ == "__main__":
     raw_shingle = []
     
     # TODO: comment this out
-    # f = open('../data/train.txt', 'r+')
-    # for line in f:
+    #   f = open('../data/toy.txt', 'r+')
+    #   for line in f:
+        
     for line in sys.stdin:
-
         line = line.strip()
         vid = int(line[6:15])
         shingles = np.fromstring(line[16:], dtype=int, sep=" ")

@@ -23,7 +23,7 @@ class Video:
         return hash(self.idx)
 
 def jaccard_dist(video_a, video_b):
-    return len(video_a.shingles.intersection(video_b.shingles)) / \
+    return float(len(video_a.shingles.intersection(video_b.shingles))) / \
             len(video_a.shingles.union(video_b.shingles))
 
 def print_duplicates(videos):
