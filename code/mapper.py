@@ -6,47 +6,55 @@ import sys
 from sets import Set
 
 
-r = 8  #int(sys.argv[1])
-b = 16 #int(sys.argv[2])
-hashnum = 128
-buckets = 256 # number of buckets
+r = 5  #int(sys.argv[1])
+b = 40 #int(sys.argv[2])
+hashnum = 200
+buckets = 10007 # number of buckets
 buck = [set() for index in xrange(buckets)] # sets of bucket
+Matrix = []
+L = []
 
-def partition(line):
-    video_id = int(line[6:15])
-    shingles = np.fromstring(line[16:], sep=" ")
-    for word in shingles:
+def partition(Line):
+    for j in range(0,len(Line),1):
+        M = []
         for i in range(0, hashnum,1):
-            M[i] = min((hasha[i]*word+hashb[i])%10001, M[i])
-    #Mapping to buckets
-    for i in range(0, hashnum, r):
-        h = 0
-        for j in range(0, r, 1):
-            h = (M[i + j] * hashc[j] + hashd[j]) % buckets
-        buck[int(h)].add(line)
-
+            M.append(10001)
+        video_id = int(Line[j][6:15])
+        shingles = np.fromstring(Line[j][16:], sep=" ")
+        for word in shingles:
+            for i in range(0, hashnum,1):
+                M[i] = min((hasha[i]*word+hashb[i])%10001, M[i])
+        Matrix.append(M)
 
 if __name__ == "__main__":
     # Very important. Make sure that each machine is using the
     # same seed when generating random numbers for the hash functions.
     np.random.seed(seed=42)
-    hasha = []
-    hashb = []
     #Generate hash function paramters
-    hasha = np.random.randint(1,10001, hashnum)
-    hashb = np.random.randint(1,10001, hashnum)
-    hashc = np.random.randint(1, buckets, r)
-    hashd = np.random.randint(1, buckets, r)
+    hasha = np.random.randint(1,1001, hashnum)
+    hashb = np.random.randint(1,1001, hashnum)
+    hashc = np.random.randint(1, 1001, r+1)
+    #hashd = np.random.randint(1, 1001, r)
 
     for line in sys.stdin:
         line = line.strip()
-        M = []
-        for i in range(0, hashnum,1):
-            M.append(10001)
-        partition(line)
+        L.append(line)
+    partition(L)
     #Passing bucket sets to reducer
-    for i in range(0, buckets ,1):
-        if len(buck[i]) > 0 :
-            for j in buck[i]:
-                print i, ":", j
+     #Mapping to buckets
+    for i in range(0, hashnum, r):
+        for k in range(0, len(Matrix) , 1):
+            h = 0
+            for j in range(0, r, 1):
+                h = (h + Matrix[k][i + j] * hashc[j]) % buckets
+            h = (h+hashc[r]) % buckets
+            video_id = int(L[k][6:15])
+            scheisse = []
+            scheisse.append(video_id)
+            shingles = np.fromstring(L[k][16:], sep=" ")
+            for word in shingles:
+                scheisse.append(int(word))
+            print ('%s\t%s' % ((int(i/r),int(h)),scheisse))
+        #line2 = str(int(i/r))+"%"+line
+        #buck[int(h)].add(line2)
 
